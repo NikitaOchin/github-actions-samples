@@ -105,20 +105,7 @@ jobs:
     #   with:
     #     token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}  
 
-        
-    - name: Update deployment file
-      run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/hello-gitops:'${TAG}'|' $GITHUB_WORKSPACE/k8s/deployment.yaml
-
-    - name: Save DigitalOcean kubeconfig with short-lived credentials
-      run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
-
-    - name: Deploy to DigitalOcean Kubernetes
-      run: kubectl apply -f $GITHUB_WORKSPACE/k8s/deployment.yaml
-
-    - name: Verify deployment
-      run: kubectl rollout status deployment/hello-gitops
-
-    - name: Create namespace & set in Kustomize
+     - name: Create namespace & set in Kustomize
       run: |
          namespacePresentBlue=`kubectl get ns | grep python-app-blue | wc -l`
          namespacePresentGreen=`kubectl get ns | grep python-app-green | wc -l`
@@ -140,6 +127,18 @@ jobs:
             echo "Both Blue and Green namespaces are present! Exiting"
             exit 1
          fi
+
+    - name: Update deployment file
+      run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/hello-gitops:'${TAG}'|' $GITHUB_WORKSPACE/k8s/deployment.yaml
+
+    - name: Save DigitalOcean kubeconfig with short-lived credentials
+      run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
+
+    - name: Deploy to DigitalOcean Kubernetes
+      run: kubectl apply -f $GITHUB_WORKSPACE/k8s/deployment.yaml
+
+    - name: Verify deployment
+      run: kubectl rollout status deployment/hello-gitops
 
     - name: Update Kubernetes resources
       env:
