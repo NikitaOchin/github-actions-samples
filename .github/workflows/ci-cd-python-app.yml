@@ -100,6 +100,12 @@ jobs:
       with:
         kustomize-version: "3.6.1"
 
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}  
+
+        
     - name: Update deployment file
       run: TAG=$(echo $GITHUB_SHA | head -c7) && sed -i 's|<IMAGE>|${{ secrets.REGISTRY_NAME }}/python-example:'${TAG}'|' $GITHUB_WORKSPACE/k8s/deployment.yaml
 
