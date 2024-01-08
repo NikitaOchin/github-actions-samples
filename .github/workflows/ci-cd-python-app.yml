@@ -111,6 +111,9 @@ jobs:
     - name: Save DigitalOcean kubeconfig with short-lived credentials
       run: doctl kubernetes cluster kubeconfig save --expiry-seconds 600 ${{ secrets.CLUSTER_NAME }}
 
+    - name: Create namespace
+      run: kubectl create namespace hello-gitops || true
+
     - name: Deploy to DigitalOcean Kubernetes
       run: kubectl apply -k $GITHUB_WORKSPACE/k8s/
       # run: kubectl apply -f $GITHUB_WORKSPACE/k8s/deployment.yaml
